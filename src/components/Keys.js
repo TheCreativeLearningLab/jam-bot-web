@@ -12,10 +12,6 @@ const Keys = ({keypress, keyup}) => {
     }
 
     useEffect(() => {
-        Object.entries(keyConfig).map(entry =>{
-            console.log(entry[0] + entry[1])
-        })
-        console.log(Object.entries(keyConfig))
         //Key Press: Listener
         document.addEventListener('keypress', keypress)
         //Syth Key Up event handler
@@ -28,8 +24,8 @@ const Keys = ({keypress, keyup}) => {
     
     return (
         <RowSection>
-            {Object.entries(keyConfig).map((entry)=>
-                <button onMouseDown={()=>keypress({key:entry[0]})} onMouseUp={()=>keyup({key:entry[0]})}>
+            {Object.entries(keyConfig).map((entry,index)=>
+                <button key={index} onMouseDown={()=>keypress({key:entry[0]})} onMouseUp={()=>keyup({key:entry[0]})}>
                     <p>{`Note: ${entry[1]}`}</p>
                     <p>{`Key: ${entry[0]}`}</p>
                     

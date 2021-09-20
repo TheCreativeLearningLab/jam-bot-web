@@ -20,7 +20,7 @@ const RowSection = styled.div`
 const ColSection = styled.div`
     display:flex;
     alig-content: center;
-    flex-direction: col;
+    flex-direction: column;
     justify-content: space-around;
 `;
 
