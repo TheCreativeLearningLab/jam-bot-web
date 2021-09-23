@@ -41,11 +41,12 @@ const defaultPhraseConfig = {
  * TODO: 
  * 
  * -Instrument configurations & UI
- *      -Kick/Snare Select Sample files, Adjust Gain
- *      -Lead Tone and Octave Changer, Scale Selection
+ *      -Gain control
+ *      -Lead & Rhythm Tone and Octave Changer, Scale Selection
+ *      -Kick/Snare Select Sample files
  * 
  * -Lead Loop Visualizer
- *      -canvas midi type visualizer
+ *      -Canvas midi type visualizer
  * 
  * -Alternate phrases - save song configuration
  * 
@@ -169,12 +170,18 @@ class JamBot extends Component {
 //Initialize ToneJS After User Input
     initToneJs() {
         //Setup Synth Instruments
-        this.leadSynth = new Tone.Synth().toDestination();
-        this.rhythmSynth = new Tone.PolySynth().toDestination();
+        this.leadGain = new Tone.Gain(0.5).toDestination();
+        this.leadSynth = new Tone.Synth().connect(this.leadGain);
+        
+        //Rhythm Instrument
+        this.rhythmGain = new Tone.Gain(0.5).toDestination();
+        this.rhythmSynth = new Tone.PolySynth().connect(this.rhythmGain);
         //Kick
-        this.kickSampler = new Tone.Player(this.config.kickUrl).toDestination();
+        this.kickGain = new Tone.Gain(0.5).toDestination();
+        this.kickSampler = new Tone.Player(this.config.kickUrl).connect(this.kickGain);
         //Snare
-        this.snareSampler = new Tone.Player(this.config.snareUrl).toDestination();
+        this.snareGain = new Tone.Gain(0.5).toDestination();
+        this.snareSampler = new Tone.Player(this.config.snareUrl).connect(this.snareGain);
         //Initialize Click Loop with base interval set in config
         console.log("creating clickloop")
         this.clickLoop = new Tone.Loop(time=>{
@@ -192,8 +199,8 @@ class JamBot extends Component {
         this.setup = true;  
     }    
 //Metronome loop callback: loop accesses any class variables
-    clickCallback(times){
-        const time = Tone.now()
+    clickCallback(time){
+        //const time = Tone.now()
         //Synth Lead Looper
         this.syncLeadLoop(time)
 
@@ -229,7 +236,8 @@ class JamBot extends Component {
         this.key.root = root;
         this.setState({keyRoot:root})
         const rootIndex = chromatic.indexOf(root)
-        
+        const rootFreq = chromNotes[rootIndex]
+
         //Get Key Intervals - Notes and Frequencies
         natMaj.map((semitone,index)=>{
             var chromIndex =  semitone + rootIndex;
@@ -239,7 +247,9 @@ class JamBot extends Component {
             //Set note letter note
             this.key.intervals[index].note = (chromatic[chromIndex])
             //Set note frequency
-            this.key.intervals[index].freq = (chromNotes[chromIndex])
+            //TODO: To have ascending frequencies on all keys make this absolute
+            //this.key.intervals[index].freq = (chromNotes[chromIndex])
+            this.key.intervals[index].freq = rootFreq* Math.pow(2,semitone/12)
     
         })
     
@@ -265,7 +275,7 @@ class JamBot extends Component {
     
     
         //Get key Scales
-        const rootFreq = chromNotes[rootIndex]
+
         var minorPent = [0,3,5,7,10]
         this.key.scaleFreqs.minorPent = []
         minorPent.map(semitone=>{
@@ -300,9 +310,15 @@ class JamBot extends Component {
         this.setState({kickLoop: intervals})
         //With backend this could be a mutation to update phrase config
     }
+    changeKickGain(value){
+        this.kickGain.gain.value = value/100
+    }
     //Snare set Intervals
     snareSetLoop(intervals){
         this.setState({snareLoop:intervals})
+    }
+    changeSnareGain(value){
+        this.snareGain.gain.value = value/100
     }
 
 //Lead Synth Callbacks
@@ -401,6 +417,11 @@ class JamBot extends Component {
         var blankLoop = new Array(this.config.loopLengthIntervals).fill(0)
         this.setState({leadLoop: blankLoop});
     }
+    //Change gain
+    changeLeadGain(value){
+        this.leadGain.gain.value = value/100
+    }
+    
 //Rhythm Setup
     //Add Chord to phrase list
     addChord(chord){
@@ -438,14 +459,22 @@ class JamBot extends Component {
         this.rhythmPlayingNote = chord;
         }
     }
+    changeRhythmGain(value){
+        this.rhythmGain.gain.value = value/100
+    }
 
 
     render() {return (
         <Screen>
             <h1 style={{color: Colors.primary,textAlign:'center'}}>Jambot!</h1>
-            <h2 style={{textAlign:'center'}} >"Never Jam Alone Again"</h2>
             <RowSection>
                 <button onClick={this.startJambot.bind(this)}>{this.state.isPlaying ? 'Stop' : 'Start'}</button>
+                <p>Root: </p>
+                        <select value={this.state.keyRoot} onChange={(event)=>{this.loadKey(event.target.value)}} name="keySelect"> 
+                            {chromatic.map((root, index)=>
+                                <option key={index} value={root}>{root}</option>
+                            )}
+                        </select>
                 <button onClick={()=>{this.setState({isLooping:!this.state.isLooping})}}>{this.state.isLooping ? 'Looping' : 'Not Looping'}</button>
             </RowSection>
             <RowSection>
@@ -453,11 +482,23 @@ class JamBot extends Component {
                 <p>Tempo: {this.state.tempo}</p>
                 <input type='range' value={this.state.tempo} onChange={(event)=>{this.changeTempo(event.target.value)}} min="50" max="250"/>     
             </RowSection>
-            <p>Kick Sequencer</p>
+            <RowSection> 
+                <p>Kick Sequencer</p>
+                <p>Volume</p>
+                <input type='range' onChange={(event)=>this.changeKickGain(event.target.value)}/>
+            </RowSection>
             <Sequencer intervals={this.state.kickLoop} setIntervals={this.kickSetLoop.bind(this)} division={1} currentInterval={this.state.beatDisplay}/>
-            <p>Snare Sequencer</p>
+            <RowSection> 
+                <p>Snare Sequencer</p>
+                <p>Volume</p>
+                <input type='range' onChange={(event)=>this.changeSnareGain(event.target.value)}/>
+            </RowSection>
             <Sequencer intervals={this.state.snareLoop} setIntervals={this.snareSetLoop.bind(this)} division={1} currentInterval={this.state.beatDisplay}/>
-            <p>Rhythm chords</p>
+            <RowSection> 
+                <p>Rhythm</p>
+                <p>Volume</p>
+                <input type='range' onChange={(event)=>this.changeRhythmGain(event.target.value)}/>
+            </RowSection>
             <RowSection> 
                 <button onClick={()=>this.playRhythm('I')}>Play I Chord: {this.key.intervals[0].note + this.key.intervals[0].chordMode}</button>
                 <button onClick={()=>this.playRhythm('ii')}>Play ii Chord {this.key.intervals[1].note+ this.key.intervals[1].chordMode}</button>
@@ -467,17 +508,17 @@ class JamBot extends Component {
                 <button onClick={()=>this.playRhythm('vi')}>Play vi Chord {this.key.intervals[5].note+ this.key.intervals[5].chordMode}</button>
             </RowSection>
             <Progression addChord={this.addChord.bind(this)} chordList={this.state.chordList} chords={this.key.intervals} clearChords={this.clearRhythmLoop.bind(this)}/>
+            <RowSection> 
+                <p>Lead</p>
+                <p>Volume</p>
+                <input type='range' onChange={(event)=>this.changeLeadGain(event.target.value)}/>
+            </RowSection>
             <RowSection>
                 <p> Lead Interval: {this.state.leadKeyNoteDisplay}</p>
                 <ColSection>
                     <p>Scale: {this.state.scaleShape} </p>
                     <RowSection> 
-                        <p>Root: </p>
-                        <select value={this.state.keyRoot} onChange={(event)=>{this.loadKey(event.target.value)}} name="keySelect"> 
-                            {chromatic.map((root, index)=>
-                                <option key={index} value={root}>{root}</option>
-                            )}
-                        </select>
+
                     </RowSection>
                 </ColSection>
                 <button onClick={this.clearLeadLoop.bind(this)}> Reset Loop </button>
