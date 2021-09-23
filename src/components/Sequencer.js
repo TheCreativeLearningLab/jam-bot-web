@@ -17,8 +17,8 @@ const Sequencer = ({intervals, setIntervals, division, currentInterval, }) => {
     return (
         <RowSection>
             {intervals.map((item, index)=>{if((index%division)===0){
-                if(index%4===0){
-                    var label = (Math.floor(index/4)%4)+1;
+                if(index%2===0){
+                    var label = (Math.floor(index/2)%4)+1;
                 } else {
                     var label = '+'
                 }
