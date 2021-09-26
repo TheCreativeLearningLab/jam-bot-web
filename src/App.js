@@ -1,9 +1,10 @@
-import JamBot from "./screens/jambot";
+import { Screen } from "./components/styledComponents";
+import Screens from "./screens";
 
 function App() {
   return (
-    <div className="App">
-      <JamBot />
+    <div style = {{backgroundColor:'#3DD6D0'}}>
+      <Screens />
     </div>
   );
 }

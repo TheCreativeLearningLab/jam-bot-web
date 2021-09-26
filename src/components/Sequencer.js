@@ -1,5 +1,12 @@
 import React from 'react'
-import { RowSection, ColSection } from './styledComponents';
+import { Colors, RowSection, ColSection } from './styledComponents';
+import styled from 'styled-components';
+
+const Pad = styled.button`
+    background-color: #71F79F;
+    width: 15%;
+    height: 50px;
+`;
 
 //Sequencer displays a list of intervals either on(1) or off(0)
 //Takes the intervals to be displayed, current interval to highligh
@@ -23,14 +30,39 @@ const Sequencer = ({intervals, setIntervals, division, currentInterval, }) => {
                     var label = '+'
                 }
                 if(currentInterval === index){
-                    var outline = 'bold'
+                    var outline = Colors.logo
                 } else {
-                    var outline = 'normal'
+                    var outline = Colors.primary
                 }
+                switch (item){
+                    case 0:
+                        var color = Colors.dark
+                        break;
+                    case 1:
+                        var color = Colors.pop
+                        break;
+                    case 2:
+                        var color = '#6320EE'
+                        break;
+                    case 3:
+                        var color = '#218380'
+                        break;
+                    case 4:
+                        var color = '#73D2DE'
+                        break;
+                    case 5:
+                        var color = '#8F2D56'
+                        break;
+                }
+
                 return(
                 <ColSection key={index}> 
-                    <p style={{textAlign:'center', fontWeight:outline}}>{label}</p>
-                    <button key={index} onClick={()=>{toggleState(index)}}> {item} </button>
+                    
+                    <Pad key={index} 
+                        style = {{backgroundColor:color}}
+                        onClick={()=>{toggleState(index)}}> 
+                        <p style={{textAlign:'center', color:outline, fontWeight:'bold'}}>{label}</p>
+                    </Pad>
                 </ColSection>
             )}}
                 )}
