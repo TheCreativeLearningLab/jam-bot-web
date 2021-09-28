@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/jam-bot-web/static/css/main.96bc0ea6.chunk.css",
+    "main.js": "/jam-bot-web/static/js/main.94275473.chunk.js",
+    "main.js.map": "/jam-bot-web/static/js/main.94275473.chunk.js.map",
+    "runtime-main.js": "/jam-bot-web/static/js/runtime-main.64c23d3f.js",
+    "runtime-main.js.map": "/jam-bot-web/static/js/runtime-main.64c23d3f.js.map",
+    "static/js/2.490bb3c7.chunk.js": "/jam-bot-web/static/js/2.490bb3c7.chunk.js",
+    "static/js/2.490bb3c7.chunk.js.map": "/jam-bot-web/static/js/2.490bb3c7.chunk.js.map",
+    "static/js/3.7aaa5321.chunk.js": "/jam-bot-web/static/js/3.7aaa5321.chunk.js",
+    "static/js/3.7aaa5321.chunk.js.map": "/jam-bot-web/static/js/3.7aaa5321.chunk.js.map",
+    "index.html": "/jam-bot-web/index.html",
+    "static/css/main.96bc0ea6.chunk.css.map": "/jam-bot-web/static/css/main.96bc0ea6.chunk.css.map",
+    "static/js/2.490bb3c7.chunk.js.LICENSE.txt": "/jam-bot-web/static/js/2.490bb3c7.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.64c23d3f.js",
+    "static/js/2.490bb3c7.chunk.js",
+    "static/css/main.96bc0ea6.chunk.css",
+    "static/js/main.94275473.chunk.js"
+  ]
+}
