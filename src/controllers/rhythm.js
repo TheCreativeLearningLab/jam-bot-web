@@ -90,7 +90,6 @@ export default class Rhythm extends Component {
             <InstrumentWrapper>
             <RowSection> 
                 <InstTitle>Rhythm</InstTitle>
-                
                 <webaudio-knob ref={node=>this.rhythmRef = node} src={'/knob_1.png'} value={50} diameter="50" id="knobRhythm" />
             </RowSection>
             <RowSection> 
