@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/jam-bot-web/static/css/main.96bc0ea6.chunk.css",
-    "main.js": "/jam-bot-web/static/js/main.94275473.chunk.js",
-    "main.js.map": "/jam-bot-web/static/js/main.94275473.chunk.js.map",
+    "main.js": "/jam-bot-web/static/js/main.2019e757.chunk.js",
+    "main.js.map": "/jam-bot-web/static/js/main.2019e757.chunk.js.map",
     "runtime-main.js": "/jam-bot-web/static/js/runtime-main.64c23d3f.js",
     "runtime-main.js.map": "/jam-bot-web/static/js/runtime-main.64c23d3f.js.map",
     "static/js/2.490bb3c7.chunk.js": "/jam-bot-web/static/js/2.490bb3c7.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.64c23d3f.js",
     "static/js/2.490bb3c7.chunk.js",
     "static/css/main.96bc0ea6.chunk.css",
-    "static/js/main.94275473.chunk.js"
+    "static/js/main.2019e757.chunk.js"
   ]
 }
