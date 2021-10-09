@@ -39,10 +39,10 @@ const CText = styled.p`
 
 //Sequencer displays a list of intervals either on(1) or off(0)
 //Takes the intervals to be displayed, current interval to highligh
-const Progression = ({addChord, chordList, chords, clearChords }) => {
+const Progression = ({delChord, addChord, chordList, chords, clearChords }) => {
     const lengths = [0,1,2,3,4,5,6,7,8]
     const [chord, setChord] = useState(chords[0])
-    const [length, setLength] = useState(0)
+    const [length, setLength] = useState(4)
 
     const newChord = () =>{
         var newChord = {chord:chord, len:length};
@@ -56,6 +56,7 @@ const Progression = ({addChord, chordList, chords, clearChords }) => {
         setChord(chd)
 
     }
+ 
 
     return (
        
@@ -66,7 +67,7 @@ const Progression = ({addChord, chordList, chords, clearChords }) => {
                 <select value={chord.interval} onChange={handleChange}> 
                     {chords.map(option => <option value={option.interval}>{option.interval} : {option.note+option.chordMode}</option>)}
                 </select>
-                <select  onChange={(event)=>setLength(event.target.value)}> 
+                <select value={length} onChange={(event)=>setLength(event.target.value)}> 
                     {lengths.map(option => <option value={option}>{option}</option>)}
                 </select>
 
@@ -76,10 +77,12 @@ const Progression = ({addChord, chordList, chords, clearChords }) => {
         </AddChord>
         <ChordList>
             {chordList.map(({chord,len}, index)=> 
-                <Chord key={index}> 
-                    <CText> {chord.interval} : {chord.note}</CText>
+                <Chord onClick={()=>{delChord(index)}} key={index}> 
+                    
+                    <CText> {chord.interval} : {chord.note}{chord.chordMode}</CText>
                     <CText>Beats:</CText>
                     <CText>{len}</CText>
+                    
                 </Chord>
             )}
         </ChordList>        

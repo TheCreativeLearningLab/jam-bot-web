@@ -4,6 +4,7 @@ import * as Tone from 'tone'
 import {Colors, Screen, RowSection, ColSection, InstrumentWrapper, InstTitle} from '../components/styledComponents'
 import Sequencer from '../components/Sequencer';
 import Keys from '../components/Keys';
+import knob from '../logos/knob_1.png'
 export default class Lead extends Component {
     constructor(props){
         super(props);
@@ -17,10 +18,18 @@ export default class Lead extends Component {
         }
 
     }
+
+    componentDidMount(){
+        let leadVol = ReactDOM.findDOMNode(this.leadVol)
+        leadVol.addEventListener("input", this.changeLeadGain.bind(this))
+        let leadDist = ReactDOM.findDOMNode(this.leadDist)
+        leadDist.addEventListener("input", this.changeLeadTone.bind(this))  
+    }
     init(){
         //Setup Synth Instruments
         this.leadGain = new Tone.Gain(0.5).toDestination();
-        this.leadSynth = new Tone.Synth().connect(this.leadGain);
+        this.leadDelay = new Tone.FeedbackDelay().connect(this.leadGain);
+        this.leadSynth = new Tone.Synth().connect(this.leadDelay);
             
     }
 
@@ -128,16 +137,37 @@ export default class Lead extends Component {
         this.props.updateConfig({leadLoop: blankLoop});
     }
     //Change gain
-    changeLeadGain(value){
-        this.leadGain.gain.value = value/100
+    changeLeadGain(event){
+        this.leadGain.gain.value = event.target.value/100
     }
+    changeLeadTone(event){
+        var val = Math.floor(event.target.value/40);
+        console.log(val)
+        switch(val){
+            case 0:
+                this.leadSynth.oscillator.type = 'sine'
+                this.leadSynth.oscillator.volume.value = 0;
+                break;
+            case 1:
+                this.leadSynth.oscillator.type = 'square'
+                this.leadSynth.oscillator.volume.value = -6;
+                break;
+            case 2:
+                this.leadSynth.oscillator.type ='triangle'
+                this.leadSynth.oscillator.volume.value = 0;
+                break;
+
+        }
+
+    }
+
     render() {
         return (
             <InstrumentWrapper>
                 <RowSection> 
-                    <p>Lead</p>
-                    <p>Volume</p>
-                    <input type='range' onChange={(event)=>this.changeLeadGain(event.target.value)}/>
+                    <InstTitle>Lead</InstTitle>
+                    <webaudio-knob ref={node=>this.leadDist = node} src={knob} value={50} diameter="50" id="knobRhythm" />
+                    <webaudio-knob ref={node=>this.leadVol = node} src={knob} value={50} diameter="50" id="knobRhythm" />
                 </RowSection>
                 <RowSection>
                     <p> Lead Interval: {this.state.leadKeyNoteDisplay}</p>

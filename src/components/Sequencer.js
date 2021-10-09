@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const Pad = styled.button`
     background-color: #71F79F;
-    width: 15%;
+    width: 100%;
     height: 50px;
 `;
 

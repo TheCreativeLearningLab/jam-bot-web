@@ -4,6 +4,8 @@ import * as Tone from 'tone'
 import {Colors, Screen, RowSection, ColSection, InstrumentWrapper, InstTitle} from '../components/styledComponents'
 import Progression from '../components/Progression';
 import Sequencer from '../components/Sequencer';
+import knob from '../logos/knob_1.png'
+import { PluckSynth } from 'tone';
 
 
 export default class Rhythm extends Component {
@@ -13,6 +15,7 @@ export default class Rhythm extends Component {
         this.rhythmPlayingNote = '';
 
         this.state = {
+            
 
         }
 
@@ -22,21 +25,21 @@ export default class Rhythm extends Component {
     componentDidMount(){
         let rhythmNode = ReactDOM.findDOMNode(this.rhythmRef)
         rhythmNode.addEventListener("input", this.changeRhythmGain.bind(this))  
+        let rhythmOct = ReactDOM.findDOMNode(this.rhythmOct)
+        rhythmOct.addEventListener("input", this.changeRhythmOct.bind(this)) 
     }
 
     init() {
         //Rhythm Instrument
         this.rhythmGain = new Tone.Gain(0.5).toDestination();
         this.rhythmSynth = new Tone.PolySynth().connect(this.rhythmGain);
+        this.rhythmSynth.set({detune:-2400})
     }
     clickCallback(click, time){
         //Play Rhythm Loop
         var rhythmLoop = this.props.config.rhythmLoop;
         if(rhythmLoop[click % rhythmLoop.length]){
             if(this.props.config.rhythmGroove[click % this.props.config.loopLengthIntervals]){
-                console.log(`Click: ${click}`)
-                console.log(`RhythmLoop: ${rhythmLoop}`)
-                console.log(`Chord: ${rhythmLoop[click % rhythmLoop.length]}`)
                 this.playRhythm(rhythmLoop[click % rhythmLoop.length], time)
 
             }
@@ -51,6 +54,17 @@ export default class Rhythm extends Component {
         this.props.updateConfig({chordList:chordListCpy})
         console.log(chordListCpy)
         this.setRhythmLoop(chordListCpy)
+    }
+
+    delChord(index){
+        var clCopy = this.props.config.chordList;
+        var newC = clCopy.splice(index,1)
+        console.log(index)
+        console.log(`chord at ${index} removed`)
+        this.props.updateConfig({chordList:clCopy})
+        this.setRhythmLoop(clCopy)
+        
+
     }
     //Set the Rhythm Loop based on Chord Values
     setRhythmLoop(chordList){
@@ -76,12 +90,28 @@ export default class Rhythm extends Component {
     playRhythm(chord, time, length="8n",){
             const chordObj = this.props.config.key.intervals.find((interval)=> interval.interval == chord)
             this.rhythmSynth.triggerAttackRelease(chordObj.chordFreqs,length, time);
-            console.log("playing Rhythm")
+            
             this.rhythmPlayingNote = chord;
         
     }
     changeRhythmGain(event){
         this.rhythmGain.gain.value = event.target.value/100
+    }
+    changeRhythmOct(event){
+        var oct = Math.floor(event.target.value / 30)
+        console.log(oct)
+        switch (oct){
+            case 0:
+                this.rhythmSynth.set({detune:-2400})
+                break;
+            case 1:
+                this.rhythmSynth.set({detune:-1200})
+                break;
+            case 2:
+                this.rhythmSynth.set({detune:0})
+                break;
+        }
+
     }
 
     render() {
@@ -90,7 +120,8 @@ export default class Rhythm extends Component {
             <InstrumentWrapper>
             <RowSection> 
                 <InstTitle>Rhythm</InstTitle>
-                <webaudio-knob ref={node=>this.rhythmRef = node} src={'/knob_1.png'} value={50} diameter="50" id="knobRhythm" />
+                <webaudio-knob ref={node=>this.rhythmOct = node} src={knob} value={25} diameter="50" id="knobRhythm" />
+                <webaudio-knob ref={node=>this.rhythmRef = node} src={knob} value={50} diameter="50" id="knobRhythm" />
             </RowSection>
             <RowSection> 
                 <button onClick={()=>this.playRhythm('I')}>Play I Chord: {this.props.config.key.intervals[0].note + this.props.config.key.intervals[0].chordMode}</button>
@@ -100,7 +131,7 @@ export default class Rhythm extends Component {
                 <button onClick={()=>this.playRhythm('V')}>Play V Chord {this.props.config.key.intervals[4].note+ this.props.config.key.intervals[4].chordMode}</button>
                 <button onClick={()=>this.playRhythm('vi')}>Play vi Chord {this.props.config.key.intervals[5].note+ this.props.config.key.intervals[5].chordMode}</button>
             </RowSection>
-            <Progression addChord={this.addChord.bind(this)} chordList={this.props.config.chordList} chords={this.props.config.key.intervals} clearChords={this.clearRhythmLoop.bind(this)}/>
+            <Progression delChord={this.delChord.bind(this)} addChord={this.addChord.bind(this)} chordList={this.props.config.chordList} chords={this.props.config.key.intervals} clearChords={this.clearRhythmLoop.bind(this)}/>
             <p>Groove Pattern</p>
             <Sequencer intervals={this.props.config.rhythmGroove} setIntervals={(intervals)=>{this.props.updateConfig({rhythmGroove:intervals})}} division={1}/>
             </InstrumentWrapper>

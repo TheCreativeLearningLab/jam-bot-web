@@ -1,11 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react'
 import '../theme.css'
-import { Colors, RowSection, Screen } from '../components/styledComponents'
+import styled from 'styled-components';
+import { Colors, ColSection, RowSection, Screen } from '../components/styledComponents'
 import * as Tone from 'tone';
 import '../webaudio-controls'
 import Drums from '../controllers/drums';
 import Rhythm from '../controllers/rhythm';
 import Lead from '../controllers/lead';
+import kicktone from '../samples/kick.wav'
+import snareotne from '../samples/snare.wav'
 
 const midC = 261.625565;
 const chromatic = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -33,8 +36,8 @@ var jambotConfig = {
     beatIntervals: 2,
     loopLengthIntervals: 16,
     clickBaseInterval: '8n',
-    kickUrl: "/samples/kick.wav",
-    snareUrl: "/samples/snare.wav",
+    kickUrl: kicktone,
+    snareUrl: snareotne,
     kickLoop:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,],
     snareLoop: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,],
     leadLoop: new Array(16).fill(0),
@@ -105,12 +108,20 @@ var jambotConfig = {
     }
 }
 
+const BigButton = styled.button`
+    background-color: ${Colors.light};
+    font-size: 30px;
+    height: 200px;
+    border-radius: 30%;
+`;
+
 const JamSession = (pros) => {
     var click = 0;
     const [layout, setLayout] = useState("Setup");//Setup, Loop, Review
     const [clickDisplay, setClickDisplay] = useState(0)
     const [config, setConfig] = useState(jambotConfig)
     const [setup, setSetup] = useState(false);
+    const [playing, setPlaying] = useState(false);
     const DrumRef = useRef();
     const RhythmRef = useRef();
     const LeadRef = useRef();
@@ -128,9 +139,13 @@ const JamSession = (pros) => {
     const init = async ()=>{
         console.log("initializing Tone JS")
         await Tone.start()
-        DrumRef.current.init()
-        RhythmRef.current.init()
-        LeadRef.current.init()
+        setTimeout(()=>{
+            DrumRef.current.init()
+            RhythmRef.current.init()
+            LeadRef.current.init()
+
+        }, 1000)
+
         loadKey(config.keyRoot)
         setLayout("Loop")
 
@@ -172,9 +187,27 @@ const JamSession = (pros) => {
         Tone.Transport.bpm.value = config.tempo;
         //Start the transport now
         Tone.Transport.start();
+        setPlaying(true)
     }
     const pause = ()=>{
         Tone.Transport.stop();
+        setPlaying(false)
+    }
+    const togglePlay = ()=>{
+        if(!setup){
+            const clickLoop = new Tone.Loop(time=>{
+                clickCallback(time);
+                
+            }, config.clickBaseInterval).start();
+            setSetup(true);
+            }
+        if(playing){
+            Tone.Transport.stop();
+            setPlaying(false)
+        } else {
+            Tone.Transport.start();
+            setPlaying(true)
+        }
     }
     const stop = () =>{
         setLayout("Review")
@@ -268,8 +301,10 @@ const JamSession = (pros) => {
         //TODO Change screens to theme
     return (
         <Screen>
+            <RowSection> 
+            <ColSection>
             <h1 style={{color: Colors.pop,textAlign:'center'}}>The Jam-Bot</h1>
-            {layout==="Setup" && <button onClick={init}>Load Session</button>}
+            {layout==="Setup" && <BigButton onClick={init}>Start Jambot</BigButton>}
             {layout==="Review" && 
                 <div>
                     <p>Reviewing Session</p>
@@ -277,32 +312,40 @@ const JamSession = (pros) => {
                 </div>}
     
             {layout=="Loop" && 
-                <RowSection> 
-                    <button onClick={pause}>Pause Loop</button>
-                    <button onClick={save}>Save</button>
-                    <button onClick={start} >Start Loop</button>
-                </RowSection>
+            <ColSection>
+                <button onClick={togglePlay}>{playing ? 'Pause' : 'Play'}</button>
+                <p> Bar: {Math.floor(clickDisplay/8)+1}, Beat: {Math.floor((clickDisplay/2)%4)+1}, Interval: {clickDisplay%2} </p>
+                </ColSection>
                 }
+                <p>1. Select the kick and snare pattern</p>
+            
             <RowSection>
-                
-                <p>Root: </p>
+                <p> 2. Set the Tempo: {config.tempo}</p>
+                <input type='range' value={config.tempo} onChange={(event)=>{changeTempo(event.target.value)}} min="50" max="180"/>  
+           
+            </RowSection>
+            <p> 3. Set the chord progression. Select a cord and how many beats (eighth notes) it should play for. </p>
+                <p>Experiment with different groove patterns for the Rhythm!</p>
+            <RowSection> 
+            <p>4. Select the Key you want to jam in: </p>
                         <select value={config.key.root} onChange={(event)=>{loadKey(event.target.value)}} name="keySelect"> 
                             {chromatic.map((root, index)=>
                                 <option key={index} value={root}>{root}</option>
                             )}
                         </select>
-                
-                <p>Tempo: {config.tempo}</p>
-                <input type='range' value={config.tempo} onChange={(event)=>{changeTempo(event.target.value)}} min="50" max="180"/>  
-           
             </RowSection>
-            <RowSection>
-                <p> Bar: {Math.floor(clickDisplay/8)+1}, Beat: {Math.floor((clickDisplay/2)%4)+1}, Interval: {clickDisplay%2} </p>
-
-            </RowSection>
-             <Drums ref={DrumRef} config={config} click={clickDisplay} updateConfig={updateConfig}/>
+ 
+            <p> 5. Play the lead synth with your keyboard keys F,G,H,J,K</p>
+            <p> 6. Set the lead synth to looping to create a melody to jam with.</p>
+            </ColSection>
+            
+            <ColSection> 
+            <Drums ref={DrumRef} config={config} click={clickDisplay} updateConfig={updateConfig}/>
             <Rhythm ref={RhythmRef} config={config} click={click} updateConfig={updateConfig}/>
             <Lead ref={LeadRef} config={config} click={click} updateConfig={updateConfig}/>
+            </ColSection>
+            
+            </RowSection>
         </Screen>
     )
 }

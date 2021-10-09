@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import * as Tone from 'tone'
 import {Colors, Screen, RowSection, ColSection, InstrumentWrapper, InstTitle} from '../components/styledComponents'
 import Sequencer from '../components/Sequencer';
+import knob from '../logos/knob_1.png'
+import kickicon from '../logos/kickIcon.png'
+import snareicon from '../logos/snareIcon.png'
 
 export default class Drums extends Component {
     constructor(props){
@@ -62,8 +65,8 @@ export default class Drums extends Component {
                 <InstrumentWrapper> 
                 <RowSection> 
                    <InstTitle>Kick </InstTitle>
-                    <img src={'/kickIcon.png'} width="50" height="50"/>
-                    <webaudio-knob ref={node=>this.knobRef = node} src={'/knob_1.png'} value={50} diameter="50" id="knob1" />
+                    <img src={kickicon} width="50" height="50"/>
+                    <webaudio-knob ref={node=>this.knobRef = node} src={knob} value={50} diameter="50" id="knob1" />
                     
                 </RowSection>
                 <Sequencer intervals={this.props.config.kickLoop} setIntervals={this.kickSetLoop.bind(this)} division={1} currentInterval={this.props.click%this.props.config.kickLoop.length}/>
@@ -71,9 +74,9 @@ export default class Drums extends Component {
             <InstrumentWrapper>
                 <RowSection> 
                     <InstTitle>Snare</InstTitle>
-                    <img src={'/snareIcon.png'} width="70" height="70"/>
+                    <img src={snareicon} width="70" height="70"/>
                     <ColSection>
-                    <webaudio-knob ref={node=>this.snareRef = node} src={'/knob_1.png'} value={50} diameter="50" id="knobSnare" />
+                    <webaudio-knob ref={node=>this.snareRef = node} src={knob} value={50} diameter="50" id="knobSnare" />
                     </ColSection>
                 </RowSection>
                 <Sequencer intervals={this.props.config.snareLoop} setIntervals={this.snareSetLoop.bind(this)} division={1} currentInterval={this.props.click%this.props.config.kickLoop.length}/>

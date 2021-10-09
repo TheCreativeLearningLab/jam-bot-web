@@ -74,4 +74,5 @@ const InstTitle = styled.p`
     color: ${Colors.secondary}
 `;
 
+
 export {Colors, Screen, RowSection, ColSection, InstrumentWrapper, InstTitle}
